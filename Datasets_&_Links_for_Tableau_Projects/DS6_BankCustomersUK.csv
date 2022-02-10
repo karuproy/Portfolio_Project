@@ -1,4 +1,4 @@
-Customer ID,Name,Surname,Gender,Age,Region,Job Classification,Date Joined,Balance
+Customer ID,Name,Surname,Gender,Age,Region,Job Classification,Date Joined,BalanceS
 100000001,Simon,Walsh,Male,21,England,White Collar,05.Jan.15,113810.15
 400000002,Jasmine,Miller,Female,34,Northern Ireland,Blue Collar,06.Jan.15,36919.73
 100000003,Liam,Brown,Male,46,England,White Collar,07.Jan.15,101536.83
