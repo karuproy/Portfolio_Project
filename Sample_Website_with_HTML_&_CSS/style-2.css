@@ -1,0 +1,207 @@
+body{
+  background:       #cee;                   /* grey #cee; */ /* white  #fdb; */
+  color:            #157;                   /* blue #157; */ /* orange #e62; */
+
+  font-family:      Arial, Helvetica, sans-serif;
+  font-size:        18px;
+  
+  padding:          0px; 
+  border:           0px;
+  margin:           0px;
+}
+
+
+/*footer footer footer footer footer footer footer footer footer footer footer footer footer footer footer footer footer footer footer footer footer footer*/
+
+
+footer{
+  background:       #157;
+  color:            #cee;
+
+  font-size:        12px;
+  text-align:       center;
+
+  padding:          12px 0px 12px 0px;      /*top right bottom left*/
+  border-top:       #e62 6px solid;
+}
+
+
+/*header header header header header header header header header header header header header header header header header header header header header header*/
+/*header header header header header header header header header header header header header header header header header header header header header header*/
+
+
+header{
+  background:       #157;
+  color:            #cee;                
+
+  padding:          18px 0px 18px 0px;      /*top right bottom left*/
+  border-bottom:    #e62 6px solid;
+}
+
+
+.container{
+  width:            90%;                    /*doesn't take the whole width of available screen*/
+  margin:           auto;                   /*the content gets centred*/
+  overflow:         hidden;
+}
+
+
+.logo-cropped{
+  height:           90px;
+  width:            180px;
+
+  object-fit:       none;                   /* Do not scale the image */
+  object-position:  center;                 /* Center the image within the element */
+}
+
+
+header .brand{
+  float:            left;
+}
+
+
+header nav{
+  float:            right;
+}
+
+
+header ul{
+  padding:          0px;
+  border:           0px;
+  margin:           0px;
+}
+
+
+header li{
+  float:            left;                 /*to populate list items from left to right*/
+  display:          inline;               /*to remove bullet points*/
+  
+  padding:          36px 18px 0px 18px;
+}
+
+
+header a{
+  color:            #cee;
+
+  font-size:        18px;
+
+  text-decoration:  none;                 /*to remove underline*/
+  text-transform:   uppercase;
+}
+
+
+header a:hover{
+  color:            #fdb;              /* grey #cee; */ /* white  #fdb; */
+  
+  font-weight:      bold;
+}
+
+
+header .current a{
+  color:            #e62;              /* blue #157; */ /* orange #e62; */
+  
+  font-weight:      bold;
+}
+
+
+/*about about about about about about about about about about about about about about about about about about about about about about about about about */
+/*about about about about about about about about about about about about about about about about about about about about about about about about about */
+
+
+
+
+
+/*newsletter newsletter newsletter newsletter newsletter newsletter newsletter newsletter newsletter newsletter newsletter newsletter newsletter newsletter*/
+
+
+
+
+
+
+
+
+/* Media Queries */
+@media(max-width:900px){
+  
+  header .brand,
+  header nav,
+  header nav li,
+  
+  .newsletter h1,
+  .newsletter form,
+  .boxes .box,
+  
+  
+  article#main-col,
+  aside#sidebar{
+    float:          none;
+    text-align:     center;
+    width:          100%;
+    padding-bottom: 10px;
+  }
+
+
+  header{
+    padding-bottom: 10px;  /*20px*/
+  }
+
+
+  header .container{
+    width:           100%;                    /*doesn't take the whole width of available screen*/
+    margin:          auto;                   /*the content gets centred*/
+    overflow:        hidden;
+  }
+
+
+  .showcase h1{
+    margin-top:      12px;
+    margin-bottom:   12px;
+  }
+
+
+  .newsletter button, 
+  .quote button{
+    display:        block;
+    width:          100%;
+  }
+
+
+  .newsletter form input[type="email"], 
+  .quote input, 
+  .quote textarea{
+    width:          100%;
+    margin-bottom:  5px;
+  }
+
+
+}
+
+
+
+
+/* Teams */
+.team{
+  margin-top:       20px;
+  text-align:       center;
+  background-color: #fdb
+}
+
+.team .member{
+  float:            left;
+  text-align:       center;
+  width:            29.5%;
+  padding:          9px;
+  border:           #157 5px solid;
+  margin:           9px;
+}
+
+.team .member img{
+  width:            120px;
+  border:           #157 3px solid;
+  border-radius:    80%;
+}
+
+
+
+
+
