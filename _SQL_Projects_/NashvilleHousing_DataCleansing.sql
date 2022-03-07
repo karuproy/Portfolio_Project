@@ -1,10 +1,14 @@
-/*
-Cleaning Data in SQL Queries
-*/
+/* Cleaning Data in SQL Queries */
+
 
 Select * 
 From portfolio_project..nashvilleHousing
 
+
+--------------------------------------------------------------------------------------------------------------------------
+
+
+-- Copying into New Table
 
 Select *
 	into nashville_housing
