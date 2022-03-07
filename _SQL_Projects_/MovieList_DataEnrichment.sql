@@ -2,7 +2,7 @@
 -- Company name starting with 'The' -------------------------------------------------------------------------------
 
 select*
-from portfolio_project.dbo.Data_movieList
+from portfolio_project.dbo.movieList
 where company like'%the %'
 
 
@@ -10,7 +10,7 @@ where company like'%the %'
 -- Company producing more than 19 movies --------------------------------------------------------------------------
 
 select company, count(name) as amount
-from portfolio_project.dbo.Data_movieList
+from portfolio_project.dbo.movieList
 group by company
 having count(name) > 19
 order by amount desc
@@ -20,7 +20,7 @@ order by amount desc
 --  Company producing more than 1 but  less than 6 movies --------------------------------------------------------
 
 select company, count(name) as amount
-from portfolio_project.dbo.Data_movieList
+from portfolio_project.dbo.movieList
 group by company
 having count(name) >= 2 and count(name) <= 5
 order by amount
@@ -32,7 +32,7 @@ order by amount
 select a.company
 from
 	(select company, count(name) as amount
-	from portfolio_project.dbo.Data_movieList
+	from portfolio_project.dbo.movieList
 	group by company
 	having count(name) > 19) a
 order by amount desc
@@ -41,11 +41,11 @@ order by amount desc
 --  Select All data from above mentioned companies -----------------------------------------------------------------
 
 select*
-from portfolio_project.dbo.Data_movieList
+from portfolio_project.dbo.movieList
 where company in 
 				(select sub.company from
 										(select company, count(name) as amount
-										from portfolio_project.dbo.Data_movieList
+										from portfolio_project.dbo.movieList
 										group by company
 										having count(name) >= 2 and count(name) <= 5) 
 										sub)
@@ -79,7 +79,7 @@ create table #temp_movieList1 (
 							)
 
 insert into #temp_movieList1
-select* from portfolio_project.dbo.Data_movieList
+select* from portfolio_project.dbo.movieList
 
 
 

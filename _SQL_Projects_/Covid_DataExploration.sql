@@ -191,3 +191,9 @@ Create View view_percent_population_vaccinated as
 
 Select *
 From "view_percent_population_vaccinated"
+
+
+
+-- Dropping View to store data for later visualizations
+
+Drop View view_percent_population_vaccinated
