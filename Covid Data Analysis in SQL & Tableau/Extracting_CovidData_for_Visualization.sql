@@ -98,9 +98,9 @@ Order by inf.date
 
 -- 8. Accumulated Cases and Deaths of all Countries after every Month (Data Extarction for PowerBI)
 
-Select location as Country, cast(date as varchar), total_cases as Accumulated_Case, total_deaths as Accumulated_Death, population as Populations
+Select location as Country, cast(SUBSTRING(cast(date as varchar), 1, 11 ) as date) as Date, total_cases as Accumulated_Case, total_deaths as Accumulated_Death, population as Populations
 From portfolio_project.dbo.covid_infect
-Where cast(date as varchar) like '%Feb  1 2022%'
--- Where cast(date as varchar) like '%  1 20%'
+-- Where cast(date as varchar) like '%Feb  1 2022%'
+Where cast(date as varchar) like '%  1 20%'
 and continent is not null 
 Order by location, date desc
