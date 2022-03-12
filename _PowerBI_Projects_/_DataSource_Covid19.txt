@@ -1,0 +1,25 @@
+
+----------------------------------------------------------------------------------------------------------------------------
+
+1) Live Wordwide CoVid19 Data: 
+https://www.worldometers.info/coronavirus/
+
+----------------------------------------------------------------------------------------------------------------------------
+
+2) First Cases of Covid19 in each Country:
+https://en.wikipedia.org/wiki/COVID-19_pandemic_cases
+
+----------------------------------------------------------------------------------------------------------------------------
+
+3) Extracted Data from:
+https://ourworldindata.org/covid-cases
+
+-- For Monthly Covid Update using SQL: 
+Select location as Country, cast(SUBSTRING(cast(date as varchar), 1, 11 ) as date) as Date, total_cases as Accumulated_Case, total_deaths as Accumulated_Death, population as Populations
+From portfolio_project.dbo.covid_infect
+-- Where cast(date as varchar) like '%Feb  1 2022%'
+Where cast(date as varchar) like '%  1 20%'
+and continent is not null 
+Order by location, date desc
+
+----------------------------------------------------------------------------------------------------------------------------
