@@ -1,0 +1,8 @@
+
+-------------------------------------------------------------------------------------------------------------
+
+Filter Population for Canada, USA, Mexico, France, Germany (countries which bought cookies): 
+
+https://en.wikipedia.org/wiki/List_of_countries_and_dependencies_by_population
+
+-------------------------------------------------------------------------------------------------------------
