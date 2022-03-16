@@ -1,3 +1,3 @@
 
-<a> <img src="App_Launch_Screen.jpg"> </a>
+<a> <img src="App_Launch_Screen.JPG"> </a>
 
