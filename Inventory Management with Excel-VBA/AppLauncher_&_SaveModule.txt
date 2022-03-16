@@ -1,0 +1,28 @@
+
+------------ Save to OneDrive -------------
+
+
+Sub Save_oneDrive()
+
+Dim docName As String
+Dim driveLocation As String
+Dim mint As Integer
+mint = Int(CInt(Format(Now(), "NN")) / 20) * 20 + 10
+'FF97FCD1F86B686E
+
+docName = "Natures-Alternate__" & Format(Now(), "DDMM") & "-" & Format(Time(), "HH") & mint & ".xlsm"
+driveLocation = "https://d.docs.live.net/DE16129797717EF9/Alternate_Nature/"
+
+ActiveWorkbook.SaveAs fileName:=driveLocation & docName
+End Sub
+
+
+
+
+
+------------ App Launcher -------------
+
+
+Private Sub btn_DashboardLauncher_Click()
+frm_DashBoard.Show
+End Sub

@@ -1,0 +1,818 @@
+
+---------------- Inventory Manager -----------------
+
+
+Sub clr_Entry()
+
+    Me.txt_EntryInventory.Value = ""
+    Me.txt_CompanyBrand.Value = ""
+    Me.txt_ProductName.Value = "Required"
+    Me.txt_BarcodeNo.Value = "Required"
+    Me.txt_ItemCode.Value = ""
+    
+    
+    Me.txt_SellingPrice.Value = "Required"
+    Me.txt_BuyingPrice.Value = ""
+    Me.txt_ShelfLocation.Value = ""
+    Me.txt_ExpiryDate.Value = ""
+    Me.txt_Version.Value = ""
+    
+    
+    '''''Me.cmb_ItemCategory.Value = ""
+    Me.txt_ItemDescription.Value = ""
+    Me.txt_OtherNote.Value = ""
+    Me.txt_MinimumStock.Value = 2
+    Me.txt_PhotoURL.Value = ""
+    
+    
+    Me.txt_ProductName.ForeColor = RGB(128, 128, 128)
+    Me.txt_BarcodeNo.ForeColor = RGB(128, 128, 128)
+    Me.txt_SellingPrice.ForeColor = RGB(128, 128, 128)
+    Me.txt_MinimumStock.ForeColor = RGB(128, 128, 128)
+    
+    Me.img_PhotoInventory.Picture = LoadPicture("")
+
+End Sub
+
+
+
+
+Sub shw_Product()
+
+    Dim sh As Worksheet
+    Set sh = ThisWorkbook.Sheets("InventoryManager")
+    
+    Dim lr As Long
+    lr = Application.WorksheetFunction.CountA(sh.Range("A:A"))
+    
+    If lr = 1 Then lr = 2
+    
+    With Me.lst_Product
+        .ColumnCount = 15
+        .ColumnHeads = True
+        '''''.ColumnWidths = "27,180,90,60,60,45,45,75,66,66,150"
+        '''''.ColumnWidths = "27,90,180,75,66,60,60,45,60,45,66,150,120"
+        .ColumnWidths = "25,75,175,65,50,50,50,35,55,35,65,125,60,20,20"
+        .RowSource = "InventoryManager!A2:O" & lr
+    End With
+
+End Sub
+
+
+
+
+Sub fnd_Item(txt As MSForms.TextBox, Col_Number As Integer)
+
+    Dim sh As Worksheet
+    Set sh = ThisWorkbook.Sheets("InventoryManager")
+
+    If txt.Value = "" Then
+        MsgBox "Please Enter a valid Value in the Box beside the Search icon", vbCritical
+        Exit Sub
+    End If
+
+
+    Dim search_range As Range
+    Set search_range = sh.Range(sh.Cells(2, Col_Number), sh.Cells(Application.Rows.Count, Col_Number))
+
+    If Application.WorksheetFunction.CountIf(search_range, "*" & txt.Value & "*") = 0 Then
+        MsgBox "No Match was found", vbCritical
+        Exit Sub
+    End If
+
+
+    Dim iRow As Long
+
+    If Application.WorksheetFunction.CountIf(search_range, txt.Value) > 0 Then
+        iRow = Application.WorksheetFunction.Match(txt.Value, search_range, 0) + 1
+    Else
+        iRow = Application.WorksheetFunction.Match("*" & txt.Value & "*", search_range, 0) + 1
+    End If
+
+
+''''' show value in boxes
+
+    Me.txt_DblClc.Value = "yes"
+
+    Me.txt_EntryInventory.Value = sh.Range("A" & iRow).Value
+    Me.txt_CompanyBrand.Value = sh.Range("B" & iRow).Value
+    Me.txt_ProductName.Value = sh.Range("C" & iRow).Value
+    Me.txt_BarcodeNo.Value = sh.Range("D" & iRow).Value
+    Me.txt_ItemCode.Value = sh.Range("E" & iRow).Value
+
+
+    Me.txt_SellingPrice.Value = sh.Range("F" & iRow).Value
+    Me.txt_BuyingPrice.Value = sh.Range("G" & iRow).Value
+    Me.txt_ShelfLocation.Value = sh.Range("H" & iRow).Value
+    Me.txt_ExpiryDate.Value = sh.Range("I" & iRow).Value
+    Me.txt_Version.Value = sh.Range("J" & iRow).Value
+
+
+    '''''Me.cmb_ItemCategory.Value = sh.Range("K" & iRow).Value
+    Me.txt_ItemDescription.Value = sh.Range("L" & iRow).Value
+    Me.txt_OtherNote.Value = sh.Range("M" & iRow).Value
+    Me.txt_MinimumStock.Value = sh.Range("N" & iRow).Value
+    Me.txt_PhotoURL.Value = sh.Range("O" & iRow).Value
+
+    If Dir(Me.txt_PhotoURL.Value) <> "" Then
+        Me.img_PhotoInventory.Picture = LoadPicture(Me.txt_PhotoURL.Value)
+    End If
+
+'''''' Change font color
+
+    Me.txt_ProductName.ForeColor = vbBlack
+    Me.txt_BarcodeNo.ForeColor = vbBlack
+    Me.txt_SellingPrice.ForeColor = vbBlack
+    Me.txt_MinimumStock.ForeColor = vbBlack
+
+
+End Sub
+
+
+
+
+Private Sub UserForm_Initialize()
+    Call clr_Entry
+    Call shw_Product
+End Sub
+
+
+
+Private Sub txt_ProductName_Enter()
+    If Me.txt_ProductName.Value = "Required" Then
+        Me.txt_ProductName.Value = ""
+        Me.txt_ProductName.ForeColor = vbBlack
+    End If
+End Sub
+
+
+
+
+Private Sub txt_ProductName_Exit(ByVal Cancel As MSForms.ReturnBoolean)
+    If Me.txt_ProductName.Value = "" Then
+        Me.txt_ProductName.Value = "Required"
+        Me.txt_ProductName.ForeColor = RGB(128, 128, 128)
+    End If
+End Sub
+
+
+
+
+Private Sub txt_BarcodeNo_Enter()
+    If Me.txt_BarcodeNo.Value = "Required" Then
+        Me.txt_BarcodeNo.Value = ""
+        Me.txt_BarcodeNo.ForeColor = vbBlack
+    End If
+End Sub
+
+
+
+
+Private Sub txt_BarcodeNo_Exit(ByVal Cancel As MSForms.ReturnBoolean)
+    If Me.txt_BarcodeNo.Value = "" Then
+        Me.txt_BarcodeNo.Value = "Required"
+        Me.txt_BarcodeNo.ForeColor = RGB(128, 128, 128)
+    End If
+End Sub
+
+
+
+
+Private Sub txt_SellingPrice_Enter()
+    If Me.txt_SellingPrice.Value = "Required" Then
+        Me.txt_SellingPrice.Value = ""
+        Me.txt_SellingPrice.ForeColor = vbBlack
+    End If
+End Sub
+
+
+
+
+Private Sub txt_SellingPrice_Exit(ByVal Cancel As MSForms.ReturnBoolean)
+    If Me.txt_SellingPrice.Value = "" Then
+        Me.txt_SellingPrice.Value = "Required"
+        Me.txt_SellingPrice.ForeColor = RGB(128, 128, 128)
+    End If
+End Sub
+
+
+
+
+Private Sub txt_MinimumStock_Enter()
+    If Me.txt_MinimumStock.Value = 2 Then
+        Me.txt_MinimumStock.Value = ""
+        Me.txt_MinimumStock.ForeColor = vbBlack
+    End If
+End Sub
+
+
+
+
+Private Sub txt_MinimumStock_Exit(ByVal Cancel As MSForms.ReturnBoolean)
+    If Me.txt_MinimumStock.Value = "" Then
+        Me.txt_MinimumStock.Value = 2
+        Me.txt_MinimumStock.ForeColor = RGB(128, 128, 128)
+    End If
+End Sub
+
+
+
+
+'Private Sub img_PhotoInventory_Click()
+'Me.txt_BtnClc.Value = "yes"
+'
+'Dim img As String
+'img = Application.GetOpenFilename(filefilter:="Jpeg images,*.jpg", Title:="Please select one Photo")
+'
+'If Dir(img) <> "" Then
+'    Me.txt_PhotoURL.Value = img
+'    Me.img_PhotoInventory.Picture = LoadPicture(img)
+'End If
+'
+'End Sub
+
+
+
+
+Private Sub btn_InsertInventory_Click()
+Me.txt_BtnClc.Value = "yes"
+
+Dim img As String
+img = Application.GetOpenFilename(filefilter:="Jpeg images,*.jpg", Title:="Please select one Photo")
+
+If Dir(img) <> "" Then
+    Me.txt_PhotoURL.Value = img
+    Me.img_PhotoInventory.Picture = LoadPicture(img)
+End If
+
+End Sub
+
+
+
+
+Private Sub btn_AddInventory_Click()
+
+Dim sh As Worksheet
+Set sh = ThisWorkbook.Sheets("InventoryManager")
+
+
+''''''''' Check Required '''''''''''
+
+
+If Me.txt_ProductName.Value = "Required" Then
+    MsgBox "Please Enter Valid Product Name", vbCritical
+    Exit Sub
+End If
+
+If IsNumeric(Me.txt_BarcodeNo.Value) = False Then
+    MsgBox "Please Enter Valid Product Barcode", vbCritical
+    Exit Sub
+End If
+
+If IsNumeric(Me.txt_SellingPrice.Value) = False Then
+    MsgBox "Please Enter Valid Selling Price (without Dollar sign)", vbCritical
+    Exit Sub
+End If
+
+If Me.txt_BuyingPrice.Value = "" Then
+    Me.txt_BuyingPrice.Value = Round(Me.txt_SellingPrice.Value / 1.5, 2)
+    MsgBox "Buying Price was Estimated!                                                    (Product hasn't been Added yet. Press OK & Click Add again)", vbInformation
+    Exit Sub
+End If
+
+
+''''''''' Check Numeric '''''''''''
+
+
+If IsNumeric(Me.txt_BuyingPrice.Value) = False Then
+    MsgBox "Please Enter Valid Buying Price (without Dollar sign)", vbCritical
+    Exit Sub
+End If
+
+If IsNumeric(Me.txt_MinimumStock.Value) = False Then
+    MsgBox "Please Enter a Valid Number", vbCritical
+    Exit Sub
+End If
+
+
+''''''''' Check Duplicate '''''''''''
+
+
+If Application.WorksheetFunction.CountIf(sh.Range("D:D"), Me.txt_BarcodeNo.Value) > 0 Then
+    MsgBox "This Product is already Available.                                              (Please Check InventoryManager or Update)", vbCritical
+    Exit Sub
+End If
+
+
+''''''''' Add data ''''''''' Add data ''''''''' Add data ''''''''' Add data ''''''''' Add data '''''''''
+''''''''' Add data ''''''''' Add data ''''''''' Add data ''''''''' Add data ''''''''' Add data '''''''''
+
+
+Dim lr As Long
+lr = Application.WorksheetFunction.CountA(sh.Range("A:A"))
+
+sh.Range("A" & lr + 1).Value = lr
+sh.Range("B" & lr + 1).Value = Me.txt_CompanyBrand.Value
+sh.Range("C" & lr + 1).Value = Me.txt_ProductName.Value
+sh.Range("D" & lr + 1).Value = Me.txt_BarcodeNo.Value
+sh.Range("E" & lr + 1).Value = Me.txt_ItemCode.Value
+
+
+sh.Range("F" & lr + 1).Value = Me.txt_SellingPrice.Value
+sh.Range("G" & lr + 1).Value = Me.txt_BuyingPrice.Value
+sh.Range("H" & lr + 1).Value = Me.txt_ShelfLocation.Value
+sh.Range("I" & lr + 1).Value = Me.txt_ExpiryDate.Value
+sh.Range("J" & lr + 1).Value = Me.txt_Version.Value
+
+
+'''''sh.Range("K" & lr + 1).Value = Me.cmb_ItemCategory.Value
+sh.Range("L" & lr + 1).Value = Me.txt_ItemDescription.Value
+sh.Range("M" & lr + 1).Value = Me.txt_OtherNote.Value
+sh.Range("N" & lr + 1).Value = Me.txt_MinimumStock.Value
+'sh.Range("O" & lr + 1).Value = Me.txt_PhotoURL.Value
+
+'''''''''''' Add Image''''''''''''
+
+If Me.txt_BtnClc.Value = "yes" Then
+
+    Dim img_name As String
+    If Dir(ThisWorkbook.Path & Application.PathSeparator & "ProductPictures_from_NaturesAlternate", vbDirectory) = "" Then
+        MkDir (ThisWorkbook.Path & Application.PathSeparator & "ProductPictures_from_NaturesAlternate")
+    End If
+    
+    img_name = ThisWorkbook.Path & Application.PathSeparator & "ProductPictures_from_NaturesAlternate" & Application.PathSeparator & _
+               Me.txt_BarcodeNo.Value & "-" & Format(Now(), "DDMMYY") & "-" & Format(Time(), "HHMMSS") & ".jpg"
+    
+    FileCopy Me.txt_PhotoURL.Value, img_name
+    sh.Range("O" & lr + 1).Value = img_name
+    
+End If
+
+''''''''''''''''''''''''''''''''''
+
+Call clr_Entry
+Me.txt_DblClc.Value = ""
+Me.txt_BtnClc.Value = ""
+Call shw_Product
+
+MsgBox "This Product has been Successfully Added to the Inventory", vbInformation
+ThisWorkbook.Save
+
+End Sub
+
+
+
+
+Private Sub btn_ClearInventory_Click()
+
+Call clr_Entry
+Me.txt_DblClc.Value = ""
+Me.txt_BtnClc.Value = ""
+
+End Sub
+
+
+
+
+Private Sub lst_Product_DblClick(ByVal Cancel As MSForms.ReturnBoolean)
+Me.txt_DblClc.Value = "yes"
+
+Me.txt_EntryInventory.Value = Me.lst_Product.List(Me.lst_Product.ListIndex, 0)
+Me.txt_CompanyBrand.Value = Me.lst_Product.List(Me.lst_Product.ListIndex, 1)
+Me.txt_ProductName.Value = Me.lst_Product.List(Me.lst_Product.ListIndex, 2)
+Me.txt_BarcodeNo.Value = Me.lst_Product.List(Me.lst_Product.ListIndex, 3)
+Me.txt_ItemCode.Value = Me.lst_Product.List(Me.lst_Product.ListIndex, 4)
+
+
+Me.txt_SellingPrice.Value = Me.lst_Product.List(Me.lst_Product.ListIndex, 5)
+Me.txt_BuyingPrice.Value = Me.lst_Product.List(Me.lst_Product.ListIndex, 6)
+Me.txt_ShelfLocation.Value = Me.lst_Product.List(Me.lst_Product.ListIndex, 7)
+Me.txt_ExpiryDate.Value = Me.lst_Product.List(Me.lst_Product.ListIndex, 8)
+Me.txt_Version.Value = Me.lst_Product.List(Me.lst_Product.ListIndex, 9)
+
+
+'''''Me.cmb_ItemCategory.Value = Me.lst_Product.List(Me.lst_Product.ListIndex, 10)
+Me.txt_ItemDescription.Value = Me.lst_Product.List(Me.lst_Product.ListIndex, 11)
+Me.txt_OtherNote.Value = Me.lst_Product.List(Me.lst_Product.ListIndex, 12)
+Me.txt_MinimumStock.Value = Me.lst_Product.List(Me.lst_Product.ListIndex, 13)
+Me.txt_PhotoURL.Value = Me.lst_Product.List(Me.lst_Product.ListIndex, 14)
+
+If Dir(Me.txt_PhotoURL.Value) <> "" Then
+    Me.img_PhotoInventory.Picture = LoadPicture(Me.txt_PhotoURL.Value)
+End If
+
+'''''' Change font color
+
+    Me.txt_ProductName.ForeColor = vbBlack
+    Me.txt_BarcodeNo.ForeColor = vbBlack
+    Me.txt_SellingPrice.ForeColor = vbBlack
+    Me.txt_MinimumStock.ForeColor = vbBlack
+    
+MsgBox "Please Update or Delete this Record Now, Otherwise Clear to continue", vbInformation
+
+End Sub
+
+
+
+
+Private Sub lst_Product_Click()
+
+If Me.txt_DblClc.Value = "" Then
+    
+    Me.txt_EntryInventory.Value = ""
+    Me.txt_CompanyBrand.Value = Me.lst_Product.List(Me.lst_Product.ListIndex, 1)
+    Me.txt_ProductName.Value = Me.lst_Product.List(Me.lst_Product.ListIndex, 2)
+    Me.txt_BarcodeNo.Value = Me.lst_Product.List(Me.lst_Product.ListIndex, 3)
+    Me.txt_ItemCode.Value = Me.lst_Product.List(Me.lst_Product.ListIndex, 4)
+    
+    
+    Me.txt_SellingPrice.Value = Me.lst_Product.List(Me.lst_Product.ListIndex, 5)
+    Me.txt_BuyingPrice.Value = Me.lst_Product.List(Me.lst_Product.ListIndex, 6)
+    Me.txt_ShelfLocation.Value = Me.lst_Product.List(Me.lst_Product.ListIndex, 7)
+    Me.txt_ExpiryDate.Value = Me.lst_Product.List(Me.lst_Product.ListIndex, 8)
+    Me.txt_Version.Value = Me.lst_Product.List(Me.lst_Product.ListIndex, 9)
+    
+    
+    '''''Me.cmb_ItemCategory.Value = Me.lst_Product.List(Me.lst_Product.ListIndex, 10)
+    Me.txt_ItemDescription.Value = Me.lst_Product.List(Me.lst_Product.ListIndex, 11)
+    Me.txt_OtherNote.Value = Me.lst_Product.List(Me.lst_Product.ListIndex, 12)
+    Me.txt_MinimumStock.Value = Me.lst_Product.List(Me.lst_Product.ListIndex, 13)
+    Me.txt_PhotoURL.Value = Me.lst_Product.List(Me.lst_Product.ListIndex, 14)
+
+
+    If Dir(Me.txt_PhotoURL.Value) <> "" Then
+        Me.img_PhotoInventory.Picture = LoadPicture(Me.txt_PhotoURL.Value)
+    End If
+
+'''''' Change font color
+
+    Me.txt_ProductName.ForeColor = vbBlack
+    Me.txt_BarcodeNo.ForeColor = vbBlack
+    Me.txt_SellingPrice.ForeColor = vbBlack
+    Me.txt_MinimumStock.ForeColor = vbBlack
+    
+End If
+
+End Sub
+
+
+
+
+Private Sub btn_DeleteInventory_Click()
+
+If Me.txt_EntryInventory.Value = "" Then
+    MsgBox "Please Double Click on a Record to Delete", vbCritical
+    Exit Sub
+End If
+
+Dim confirmation As Integer
+confirmation = MsgBox("Do you want to Delete { " & Me.txt_ProductName.Value & " } from Inventory data?", vbQuestion + vbYesNo)
+
+If confirmation = vbNo Then Exit Sub
+
+Dim sh As Worksheet
+Set sh = ThisWorkbook.Sheets("InventoryManager")
+
+Dim lr As Long
+lr = Application.WorksheetFunction.CountA(sh.Range("A:A"))
+
+Dim iRow As Long
+iRow = Application.WorksheetFunction.Match(CInt(Me.txt_EntryInventory.Value), sh.Range("A:A"), 0)
+
+
+'sh.Unprotect ""
+sh.Range("A" & iRow).EntireRow.Delete
+
+With Worksheets("InventoryManager")
+    sh.Range("A2").Value = 1
+    sh.Range("A3").Value = 2
+    sh.Range("A2:A3").AutoFill Destination:=sh.Range("A2:A" & lr - 1)
+End With 'Worksheets("InventoryManager")
+'sh.Protect ""
+
+
+Call clr_Entry
+Me.txt_DblClc.Value = ""
+Me.txt_BtnClc.Value = ""
+Call shw_Product
+
+MsgBox "The Data Record has been Deleted!!!"
+ThisWorkbook.Save
+
+End Sub
+
+
+
+
+Private Sub btn_UpdateInventory_Click()
+Dim sh As Worksheet
+Set sh = ThisWorkbook.Sheets("InventoryManager")
+
+
+''''''''' Check Blank '''''''''''
+
+
+If Me.txt_EntryInventory.Value = "" Then
+    MsgBox "Please Double Click on a Record to Update", vbCritical
+    Exit Sub
+End If
+
+If Me.txt_ProductName.Value = "Required" Then
+    MsgBox "Please Enter Valid Product Name", vbCritical
+    Exit Sub
+End If
+
+If IsNumeric(Me.txt_BarcodeNo.Value) = False Then
+    MsgBox "Please Enter Valid Product Barcode", vbCritical
+    Exit Sub
+End If
+
+If IsNumeric(Me.txt_SellingPrice.Value) = False Then
+    MsgBox "Please Enter Valid Selling Price (without Dollar sign)", vbCritical
+    Exit Sub
+End If
+
+If Me.txt_BuyingPrice.Value = "" Then
+    Me.txt_BuyingPrice.Value = Round(Me.txt_SellingPrice.Value / 1.5, 2)
+    MsgBox "Buying Price was Estimated!                                                    (Product hasn't been Updated yet. Press OK & Click Update again)", vbInformation
+    Exit Sub
+End If
+
+
+''''''''' Check Numeric '''''''''''
+
+
+If IsNumeric(Me.txt_BuyingPrice.Value) = False Then
+    MsgBox "Please Enter Valid Buying Price (without Dollar sign)", vbCritical
+    Exit Sub
+End If
+
+If IsNumeric(Me.txt_MinimumStock.Value) = False Then
+    MsgBox "Please Enter a Valid Number", vbCritical
+    Exit Sub
+End If
+
+
+''''''''' Update data ''''''''' Update data ''''''''' Update data ''''''''' Update data ''''''''' Update data '''''''''
+''''''''' Update data ''''''''' Update data ''''''''' Update data ''''''''' Update data ''''''''' Update data '''''''''
+
+
+Dim lr As Long
+lr = Application.WorksheetFunction.Match(CInt(Me.txt_EntryInventory.Value), sh.Range("A:A"), 0)
+
+sh.Range("B" & lr).Value = Me.txt_CompanyBrand.Value
+sh.Range("C" & lr).Value = Me.txt_ProductName.Value
+sh.Range("D" & lr).Value = Me.txt_BarcodeNo.Value
+sh.Range("E" & lr).Value = Me.txt_ItemCode.Value
+
+
+sh.Range("F" & lr).Value = Me.txt_SellingPrice.Value
+sh.Range("G" & lr).Value = Me.txt_BuyingPrice.Value
+sh.Range("H" & lr).Value = Me.txt_ShelfLocation.Value
+sh.Range("I" & lr).Value = Me.txt_ExpiryDate.Value
+sh.Range("J" & lr).Value = Me.txt_Version.Value
+
+
+'sh.Range("K" & lr).Value = Me.cmb_ItemCategory.Value
+sh.Range("L" & lr).Value = Me.txt_ItemDescription.Value
+sh.Range("M" & lr).Value = Me.txt_OtherNote.Value
+sh.Range("N" & lr).Value = Me.txt_MinimumStock.Value
+'sh.Range("O" & lr).Value = Me.txt_PhotoURL.Value
+
+'''''''''''' Update Image''''''''''''
+
+If Me.txt_BtnClc.Value = "yes" Then
+
+    If Me.txt_PhotoURL.Value <> sh.Range("O" & lr).Value Then
+        
+        Dim img_name As String
+        If Dir(ThisWorkbook.Path & Application.PathSeparator & "ProductPictures_from_NaturesAlternate", vbDirectory) = "" Then
+            MkDir (ThisWorkbook.Path & Application.PathSeparator & "ProductPictures_from_NaturesAlternate")
+        End If
+        
+        img_name = ThisWorkbook.Path & Application.PathSeparator & "ProductPictures_from_NaturesAlternate" & Application.PathSeparator & _
+               Me.txt_BarcodeNo.Value & "-" & Format(Now(), "DDMMYY") & "-" & Format(Time(), "HHMMSS") & ".jpg"
+        
+        FileCopy Me.txt_PhotoURL.Value, img_name
+        sh.Range("O" & lr).Value = img_name
+        
+    End If
+
+End If
+
+''''''''''''''''''''''''''''''''''
+
+Call clr_Entry
+Me.txt_DblClc.Value = ""
+Me.txt_BtnClc.Value = ""
+Call shw_Product
+
+MsgBox "This Product has been Successfully Updated to the Inventory", vbInformation
+ThisWorkbook.Save
+
+End Sub
+
+
+
+
+Private Sub img_SearchProductName_Click()
+    Call fnd_Item(Me.txt_ProductName, 3)
+End Sub
+
+
+
+
+Private Sub img_SearchBarcodeNo_Click()
+    Call fnd_Item(Me.txt_BarcodeNo, 4)
+End Sub
+
+
+
+
+Private Sub img_SearchItemCode_Click()
+    'Call fnd_Item(Me.txt_ItemCode, 5)
+    MsgBox "Not All Item Code is Up-to-Date as of Now. Please Consider searching by Barcode or Product's Name", vbInformation
+End Sub
+
+
+
+
+Private Sub img_CalendarExpiry_Click()
+Call frm_Calendar.SelectedDate(Me.txt_ExpiryDate)
+End Sub
+
+
+
+
+Private Sub btn_ExtractInventory_Click()
+    Dim nwb As Workbook
+    Set nwb = Workbooks.Add
+    ThisWorkbook.Sheets("InventoryManager").UsedRange.Copy nwb.Sheets(1).Range("A1")
+End Sub
+
+
+
+
+
+
+----------------   Stock Alert   -------------------
+
+Private Sub UserForm_Initialize()
+    Call shw_Alert
+'    Call shw_Alerts
+End Sub
+
+
+
+Sub shw_Alert()
+
+'Application.ScreenUpdating = False
+
+Dim shIM As Worksheet
+Set shIM = ThisWorkbook.Sheets("InventoryManager")
+
+Dim shP As Worksheet
+Set shP = ThisWorkbook.Sheets("Product")
+
+Dim shSA As Worksheet
+Set shSA = ThisWorkbook.Sheets("StockAlert")
+
+
+shIM.AutoFilterMode = False
+shP.AutoFilterMode = False
+shSA.AutoFilterMode = False
+shSA.UsedRange.ClearContents
+
+''''' Copy data from Transaction worksheet to TransactionFilter worksheet
+
+'shIM.Range("N:N").NumberFormat = "DD-MMM-YYYY"
+'shIM.Range("E:F").NumberFormat = "0.00"
+'shIM.Range("D:D").NumberFormat = "0"
+
+shP.UsedRange.AutoFilter 6, "<=2"
+'& Me.txt_From.Value, xlAnd, "<=" & Me.txt_To.Value
+
+'If Me.opt_Sale.Value = True Then
+'    shIM.UsedRange.AutoFilter 2, "Sale"
+'End If
+'
+'If Me.opt_Order.Value = True Then
+'    shIM.UsedRange.AutoFilter 2, "Order"
+'End If
+'
+'If Me.opt_Receive.Value = True Then
+'    shIM.UsedRange.AutoFilter 2, "Receive"
+'End If
+'
+'If Me.opt_Refund.Value = True Then
+'    shIM.UsedRange.AutoFilter 2, "Refund"
+'End If
+'
+'If Me.opt_Adjust.Value = True Then
+'    shIM.UsedRange.AutoFilter 2, "Adjust"
+'End If
+
+'If Me.OptionButton3.Value = True Then   ''' Filter Sale
+'    shIM.UsedRange.AutoFilter 3, "Sale"
+'End If
+
+shP.UsedRange.Copy
+shSA.Range("A1").PasteSpecial xlPasteValuesAndNumberFormats
+
+shP.AutoFilterMode = False
+
+
+'''''''''' Display Filtered data in the list box
+Dim lr As Long
+lr = Application.WorksheetFunction.CountA(shSA.Range("A:A"))
+
+If lr = 1 Then lr = 2
+
+With Me.lst_Activity
+    .ColumnCount = 10
+    .ColumnHeads = True
+    .ColumnWidths = "0,105,55,35,35,35,0,55,0,0"
+    .RowSource = "StockAlert!A2:J" & lr
+End With
+
+End Sub
+
+
+
+
+
+
+
+Sub shw_Alerts()
+
+'Application.ScreenUpdating = False
+
+Dim shIM As Worksheet
+Set shIM = ThisWorkbook.Sheets("InventoryManager")
+
+Dim shP As Worksheet
+Set shP = ThisWorkbook.Sheets("Product")
+
+Dim shSA As Worksheet
+Set shSA = ThisWorkbook.Sheets("StockAlert")
+
+
+shIM.AutoFilterMode = False
+shP.AutoFilterMode = False
+shSA.AutoFilterMode = False
+shSA.UsedRange.ClearContents
+
+''''' Copy data from Transaction worksheet to TransactionFilter worksheet
+
+'shIM.Range("N:N").NumberFormat = "DD-MMM-YYYY"
+'shIM.Range("E:F").NumberFormat = "0.00"
+'shIM.Range("D:D").NumberFormat = "0"
+
+shP.UsedRange.AutoFilter 6, "<=2"
+'& Me.txt_From.Value, xlAnd, "<=" & Me.txt_To.Value
+
+'If Me.opt_Sale.Value = True Then
+'    shIM.UsedRange.AutoFilter 2, "Sale"
+'End If
+'
+'If Me.opt_Order.Value = True Then
+'    shIM.UsedRange.AutoFilter 2, "Order"
+'End If
+'
+'If Me.opt_Receive.Value = True Then
+'    shIM.UsedRange.AutoFilter 2, "Receive"
+'End If
+'
+'If Me.opt_Refund.Value = True Then
+'    shIM.UsedRange.AutoFilter 2, "Refund"
+'End If
+'
+'If Me.opt_Adjust.Value = True Then
+'    shIM.UsedRange.AutoFilter 2, "Adjust"
+'End If
+
+'If Me.OptionButton3.Value = True Then   ''' Filter Sale
+'    shIM.UsedRange.AutoFilter 3, "Sale"
+'End If
+
+shP.UsedRange.Copy
+shSA.Range("A1").PasteSpecial xlPasteValuesAndNumberFormats
+
+shP.AutoFilterMode = False
+
+
+'''''''''' Display Filtered data in the list box
+Dim lr As Long
+lr = Application.WorksheetFunction.CountA(shSA.Range("A:A"))
+
+If lr = 1 Then lr = 2
+
+With Me.lst_Activity
+    .ColumnCount = 10
+    .ColumnHeads = True
+    .ColumnWidths = "30,150,60,45,45,45,45,60,75,75"
+    ',40,0,120,45,60,0,0,0"
+    .RowSource = "StockAlerts!A2:O" & lr
+End With
+
+End Sub

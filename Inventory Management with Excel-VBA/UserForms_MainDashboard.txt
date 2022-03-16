@@ -1,0 +1,1099 @@
+Private Sub btn_ExtractStock_Click()
+    Dim nwb As Workbook
+    Set nwb = Workbooks.Add
+    ThisWorkbook.Sheets("ProductDisplay").UsedRange.Copy nwb.Sheets(1).Range("A1")
+End Sub
+
+
+
+Private Sub btn_RefreshStock_Click()
+    Call shw_Stock
+End Sub
+
+
+
+Private Sub btn_UpdateTransaction_Click()
+
+''''''''''''' Validation ''''''''''''''
+
+If Me.txt_Barcode.Value = "" Then
+    MsgBox "Please Search the Product by the Name or the Barcode", vbCritical
+    Exit Sub
+End If
+
+If Me.cmb_Type.Value = "Type" Then
+    MsgBox "Please Select the Transaction Type Dropdown", vbCritical
+    Exit Sub
+End If
+
+
+
+
+
+
+
+If Me.txt_Paid.Value = "" Then
+    Dim confirm As Integer
+    confirm = MsgBox("Was the Full Amount Paid?", vbQuestion + vbYesNo)
+    
+    If confirm = vbYes Then
+        
+'        If tgl_cut.Value = True Then
+'            Me.txt_Paid.Value = Format(Round(((Me.txt_Quantity.Value * Me.txt_Rate.Value) - Me.txt_Discount.Value), 2), "0.00")
+'        Else
+            Me.txt_Paid.Value = Format(Round(((Me.txt_Quantity.Value * Me.txt_Rate.Value) * (100 - Me.txt_Discount.Value) / 100), 2), "0.00")
+'        End If
+        
+        Exit Sub
+    End If
+    
+    If confirm = vbNo Then
+        MsgBox "Please Enter the Valid Amount that was Paid (without Dollar sign)", vbCritical
+        Exit Sub
+    End If
+End If
+
+If IsNumeric(Me.txt_Paid.Value) = False Then
+    MsgBox "Please Enter the Valid Amount that was Paid (without Dollar sign)", vbCritical
+   Exit Sub
+End If
+
+
+
+''''''''''''''''' Update data '''''''''''''''''
+
+
+Dim shT As Worksheet
+Set shT = ThisWorkbook.Sheets("Transaction")
+
+Dim lr As Long
+lr = Me.txt_Serial.Value
+
+ 
+shT.Range("A" & lr + 1).Value = lr
+shT.Range("B" & lr + 1).Value = Me.cmb_Type.Value
+
+shT.Range("C" & lr + 1).Value = Me.txt_Product.Value
+shT.Range("D" & lr + 1).Value = Me.txt_Barcode.Value
+shT.Range("E" & lr + 1).Value = Me.txt_ItemCode.Value
+
+shT.Range("F" & lr + 1).Value = Me.txt_Quantity.Value
+shT.Range("G" & lr + 1).Value = Me.txt_Rate.Value
+
+
+'If tgl_cut.Value = True Then
+'    shT.Range("H" & lr + 1).Value = 0
+'    shT.Range("I" & lr + 1).Value = Me.txt_Discount.Value
+'    shT.Range("J" & lr + 1).Value = (Me.txt_Quantity.Value * Me.txt_Rate.Value) - Me.txt_Discount.Value
+'Else
+    shT.Range("H" & lr + 1).Value = Me.txt_Discount.Value / 100
+    shT.Range("I" & lr + 1).Value = 0
+    shT.Range("J" & lr + 1).Value = (Me.txt_Quantity.Value * Me.txt_Rate.Value) * (100 - Me.txt_Discount.Value) / 100
+'End If
+
+        
+shT.Range("K" & lr + 1).Value = Me.txt_Paid.Value
+shT.Range("L" & lr + 1).Value = shT.Range("K" & lr + 1).Value - shT.Range("J" & lr + 1).Value
+shT.Range("M" & lr + 1).Value = Me.txt_Comment.Value
+
+If Me.txt_Date.Value <> "Today's Date" Then
+    shT.Range("N" & lr + 1).Value = Me.txt_Date.Value
+Else
+    shT.Range("N" & lr + 1).Value = Format(Date, "DD-MMM-YYYY")
+End If
+
+If Me.txt_Time.Value <> "Current Time" Then
+    shT.Range("O" & lr + 1).Value = Me.txt_Time.Value
+Else
+    shT.Range("O" & lr + 1).Value = Format(Time, "hh:mm:ss Am/Pm")
+End If
+
+If Me.cmb_Type.Value = "Order" Then
+    shT.Range("P" & lr + 1).Value = 0
+ElseIf Me.cmb_Type.Value = "Receive" Then
+    shT.Range("P" & lr + 1).Value = 0
+ElseIf Me.cmb_Type.Value = "Adjust" Then
+    shT.Range("P" & lr + 1).Value = Me.txt_Quantity.Value * Me.txt_Rate.Value
+ElseIf Me.cmb_Type.Value = "Expire" Then
+    shT.Range("P" & lr + 1).Value = Me.txt_Quantity.Value * Me.txt_Rate.Value * (-1)
+ElseIf Me.cmb_Type.Value = "Refund" Then
+    shT.Range("P" & lr + 1).Value = Me.txt_Quantity.Value * (Me.txt_Rate.Value - Application.WorksheetFunction.VLookup(Me.txt_Barcode.Value, ThisWorkbook.Sheets("InventoryManager").Range("D:G"), 4, 0)) * (-1)
+ElseIf Me.cmb_Type.Value = "Sale" Then
+    shT.Range("P" & lr + 1).Value = Me.txt_Quantity.Value * (Me.txt_Rate.Value - Application.WorksheetFunction.VLookup(Me.txt_Barcode.Value, ThisWorkbook.Sheets("InventoryManager").Range("D:G"), 4, 0))
+End If
+
+
+
+
+
+
+
+shT.Range("R" & lr + 1).Value = Me.txt_PhotosURL.Value
+
+''''''''''''''''' Clear box '''''''''''''''''
+
+Call clr_Transaction
+Me.cmb_Type.Value = "Type"
+Me.txt_Serial.Value = ""
+
+Call shw_Transaction
+Call shw_Stock
+Call shw_Number
+'''''' Refresh data
+'Call Available_Stocks
+'Call Show_Sale_Purchase_Data
+'Call Show_Numbers
+
+'''''''''''''''''
+
+MsgBox "Transaction Data have been Updated Successfully", vbInformation
+
+End Sub
+
+
+
+
+Private Sub btn_Save_Click()
+
+ThisWorkbook.Save
+Call Save_oneDrive
+
+MsgBox "All Data has been Saved", vbInformation
+
+ThisWorkbook.Close
+'Application.Quit
+'ThisWorkbook.Saved = True
+
+End Sub
+
+
+Private Sub btn_ExtractActivity_Click()
+    Dim nwb As Workbook
+    Set nwb = Workbooks.Add
+    ThisWorkbook.Sheets("TransactionFilter").UsedRange.Copy nwb.Sheets(1).Range("A1")
+End Sub
+
+
+Private Sub btn_InventoryManager_Click()
+frm_InventoryManager.Show
+End Sub
+Private Sub btn_StockAlert_Click()
+    frm_StockAlert.Show
+End Sub
+
+
+
+
+
+Private Sub tgl_cut_Click()
+
+If tgl_cut.Value = True Then
+    tgl_cut.Caption = "$"
+'    tgl_cut.Value = "$"
+Else
+    tgl_cut.Caption = "%"
+'    tgl_cut.Value = "%"
+End If
+
+End Sub
+
+
+
+
+Private Sub txt_PhotosURL_Change()
+
+End Sub
+
+Private Sub UserForm_Activate()
+    
+    Me.txt_DayNow.Value = Format(Date, "DD-MMM") & " , " & Format(Date, "DDD")
+    
+    Dim clk As Boolean
+    Do
+        If clk = True Then Exit Sub
+        txt_TimeNow = Format(Now, "hh:mm:ss Am/Pm")
+        DoEvents
+    Loop
+    
+End Sub
+
+
+
+
+Private Sub img_CalendarFrom_Click()
+    Call frm_Calendar.SelectedDate(Me.txt_From)
+End Sub
+Private Sub img_CalendarTo_Click()
+    Call frm_Calendar.SelectedDate(Me.txt_To)
+End Sub
+Private Sub img_CalendarDate_Click()
+    Call frm_Calendar.SelectedDate(Me.txt_Date)
+End Sub
+Private Sub img_Clock_Click()
+    frm_Clock.Show
+End Sub
+
+
+
+
+Sub clr_Transaction()
+
+    Me.txt_PhotosURL.Value = ""
+'    Me.cmb_Type.Value = ""
+    Me.txt_Product.Value = ""
+    
+    Me.txt_Barcode.Value = ""
+    Me.txt_ItemCode.Value = ""
+    Me.txt_Quantity.Value = ""
+    
+    Me.txt_Rate.Value = ""
+    Me.txt_Discount.Value = ""
+    Me.txt_Total.Value = ""
+    
+    Me.tgl_cut.Value = False
+    
+    Me.txt_Paid.Value = ""
+    Me.txt_Comment.Value = ""
+    
+    Me.txt_Date.Value = "Today's Date"
+    Me.txt_Time.Value = "Current Time"
+    
+    Me.img_PhotosTransaction.Picture = LoadPicture("")
+    
+End Sub
+
+
+
+
+Private Sub btn_ClearTransaction_Click()
+    Call clr_Transaction
+    Me.cmb_Type.Value = "Type"
+    Me.txt_Serial.Value = ""
+End Sub
+
+
+
+
+Private Sub btn_DeleteTransaction_Click()
+
+If Me.txt_Serial.Value = "" Then
+    MsgBox "Please Double Click on a Record to Delete", vbCritical
+    Exit Sub
+End If
+
+Dim confirmation As Integer
+confirmation = MsgBox("Do you want to Delete { " & Me.txt_Product.Value & " } from Transaction data?", vbQuestion + vbYesNo)
+
+If confirmation = vbNo Then Exit Sub
+
+Dim sh As Worksheet
+Set sh = ThisWorkbook.Sheets("Transaction")
+
+Dim lr As Long
+lr = Application.WorksheetFunction.CountA(sh.Range("A:A"))
+
+Dim iRow As Long
+iRow = Application.WorksheetFunction.Match(CInt(Me.txt_Serial.Value), sh.Range("A:A"), 0)
+
+
+'sh.Unprotect ""
+sh.Range("A" & iRow).EntireRow.Delete
+
+With Worksheets("Transaction")
+    sh.Range("A2").Value = 1
+    sh.Range("A3").Value = 2
+    sh.Range("A2:A3").AutoFill Destination:=sh.Range("A2:A" & lr - 1)
+End With 'Worksheets("Transaction")
+'sh.Protect ""
+
+
+Call clr_Transaction
+'Me.txt_DblClc.Value = ""
+'Me.txt_BtnClc.Value = ""
+'Call shw_Product
+Me.cmb_Type.Value = "Type"
+Me.txt_Serial.Value = ""
+
+Call shw_Transaction
+Call shw_Stock
+Call shw_Number
+
+MsgBox "The Data Record has been Deleted!!!"
+ThisWorkbook.Save
+
+End Sub
+
+
+
+
+Private Sub btn_AddTransaction_Click()
+
+''''''''''''' Validation ''''''''''''''
+
+If Me.txt_Barcode.Value = "" Then
+    MsgBox "Please Search the Product by the Name or the Barcode", vbCritical
+    Exit Sub
+End If
+
+If Me.cmb_Type.Value = "Type" Then
+    MsgBox "Please Select the Transaction Type Dropdown", vbCritical
+    Exit Sub
+End If
+
+
+
+
+'If Me.txt_Quantity.Value = "" Then
+'    Me.txt_Quantity.Value = 1
+'End If
+
+'If Me.txt_Quantity.Value <= 0 Then
+'    MsgBox "Please Enter a Number for the Correct Quantity", vbCritical
+'    Exit Sub
+'End If
+
+'If IsNumeric(Me.txt_Quantity.Value) = False Then
+'    MsgBox "Please Enter a Number for the Correct Quantity", vbCritical
+'    Exit Sub
+'End If
+
+
+
+
+'If Me.txt_Discount.Value <> "" Then
+'    Me.txt_Discount.Value = 0
+'End If
+
+'If IsNumeric(Me.txt_Discount.Value) = False Then
+'    MsgBox "Please Enter a Positive Number for Discount(Off) Without using Any Symbol", vbCritical
+'    Exit Sub
+'End If
+
+'If tgl_cut.Value = False Then
+'    If Me.txt_Discount.Value < 0 Or Me.txt_Discount.Value > 100 Then
+'        MsgBox "Please Enter a value Between 0 & 100 for Discount(Off) Without %-Percent Symbol", vbCritical
+'        Exit Sub
+'    End If
+'End If
+
+
+If Me.txt_Paid.Value = "" Then
+    Dim confirm As Integer
+    confirm = MsgBox("Was the Full Amount Paid?", vbQuestion + vbYesNo)
+    
+    If confirm = vbYes Then
+        
+'        If tgl_cut.Value = True Then
+'            Me.txt_Paid.Value = Format(Round(((Me.txt_Quantity.Value * Me.txt_Rate.Value) - Me.txt_Discount.Value), 2), "0.00")
+'        Else
+            Me.txt_Paid.Value = Format(Round(((Me.txt_Quantity.Value * Me.txt_Rate.Value) * (100 - Me.txt_Discount.Value) / 100), 2), "0.00")
+'        End If
+        
+        Exit Sub
+    End If
+    
+    If confirm = vbNo Then
+        MsgBox "Please Enter the Valid Amount that was Paid (without Dollar sign)", vbCritical
+        Exit Sub
+    End If
+End If
+
+If IsNumeric(Me.txt_Paid.Value) = False Then
+    MsgBox "Please Enter the Valid Amount that was Paid (without Dollar sign)", vbCritical
+   Exit Sub
+End If
+
+
+
+''''''''''''''''' Add data '''''''''''''''''
+
+
+Dim shT As Worksheet
+Set shT = ThisWorkbook.Sheets("Transaction")
+
+Dim lr As Long
+lr = Application.WorksheetFunction.CountA(shT.Range("A:A"))
+
+ 
+shT.Range("A" & lr + 1).Value = "=ROW()-1"
+shT.Range("B" & lr + 1).Value = Me.cmb_Type.Value
+
+shT.Range("C" & lr + 1).Value = Me.txt_Product.Value
+shT.Range("D" & lr + 1).Value = Me.txt_Barcode.Value
+shT.Range("E" & lr + 1).Value = Me.txt_ItemCode.Value
+
+shT.Range("F" & lr + 1).Value = Me.txt_Quantity.Value
+shT.Range("G" & lr + 1).Value = Me.txt_Rate.Value
+
+
+'If tgl_cut.Value = True Then
+'    shT.Range("H" & lr + 1).Value = 0
+'    shT.Range("I" & lr + 1).Value = Me.txt_Discount.Value
+'    shT.Range("J" & lr + 1).Value = (Me.txt_Quantity.Value * Me.txt_Rate.Value) - Me.txt_Discount.Value
+'Else
+    shT.Range("H" & lr + 1).Value = Me.txt_Discount.Value / 100
+    shT.Range("I" & lr + 1).Value = 0
+    shT.Range("J" & lr + 1).Value = (Me.txt_Quantity.Value * Me.txt_Rate.Value) * (100 - Me.txt_Discount.Value) / 100
+'End If
+
+        
+shT.Range("K" & lr + 1).Value = Me.txt_Paid.Value
+shT.Range("L" & lr + 1).Value = shT.Range("K" & lr + 1).Value - shT.Range("J" & lr + 1).Value
+shT.Range("M" & lr + 1).Value = Me.txt_Comment.Value
+
+If Me.txt_Date.Value <> "Today's Date" Then
+    shT.Range("N" & lr + 1).Value = Me.txt_Date.Value
+Else
+    shT.Range("N" & lr + 1).Value = Format(Date, "DD-MMM-YYYY")
+End If
+
+If Me.txt_Time.Value <> "Current Time" Then
+    shT.Range("O" & lr + 1).Value = Me.txt_Time.Value
+Else
+    shT.Range("O" & lr + 1).Value = Format(Time, "hh:mm:ss Am/Pm")
+End If
+
+If Me.cmb_Type.Value = "Order" Then
+    shT.Range("P" & lr + 1).Value = 0
+ElseIf Me.cmb_Type.Value = "Receive" Then
+    shT.Range("P" & lr + 1).Value = 0
+ElseIf Me.cmb_Type.Value = "Adjust" Then
+    shT.Range("P" & lr + 1).Value = Me.txt_Quantity.Value * Me.txt_Rate.Value
+ElseIf Me.cmb_Type.Value = "Expire" Then
+    shT.Range("P" & lr + 1).Value = Me.txt_Quantity.Value * Me.txt_Rate.Value * (-1)
+ElseIf Me.cmb_Type.Value = "Refund" Then
+    shT.Range("P" & lr + 1).Value = Me.txt_Quantity.Value * (Me.txt_Rate.Value - Application.WorksheetFunction.VLookup(Me.txt_Barcode.Value, ThisWorkbook.Sheets("InventoryManager").Range("D:G"), 4, 0)) * (-1)
+ElseIf Me.cmb_Type.Value = "Sale" Then
+    shT.Range("P" & lr + 1).Value = Me.txt_Quantity.Value * (Me.txt_Rate.Value - Application.WorksheetFunction.VLookup(Me.txt_Barcode.Value, ThisWorkbook.Sheets("InventoryManager").Range("D:G"), 4, 0))
+End If
+
+'If Me.cmb_Type.Value = "Order" Then
+'    shT.Range("Q" & lr + 1).Value = 0
+'ElseIf Me.cmb_Type.Value = "Receive" Then
+'    shT.Range("Q" & lr + 1).Value = 0
+'ElseIf Me.cmb_Type.Value = "Adjust" Then
+'    shT.Range("Q" & lr + 1).Value = Me.txt_Quantity.Value * Me.txt_Rate.Value
+'ElseIf Me.cmb_Type.Value = "Expire" Then
+'    shT.Range("Q" & lr + 1).Value = Me.txt_Quantity.Value * Me.txt_Rate.Value * (-1)
+'ElseIf Me.cmb_Type.Value = "Refund" Then
+'    shT.Range("Q" & lr + 1).Value = Me.txt_Quantity.Value * (Me.txt_Rate.Value - Application.WorksheetFunction.VLookup(Me.txt_Barcode.Value, ThisWorkbook.Sheets("InventoryManager").Range("D:G"), 4, 0)) * (-1)
+'ElseIf Me.cmb_Type.Value = "Sale" Then
+'    shT.Range("Q" & lr + 1).Value = Me.txt_Quantity.Value * (Me.txt_Rate.Value - Application.WorksheetFunction.VLookup(Me.txt_Barcode.Value, ThisWorkbook.Sheets("InventoryManager").Range("D:G"), 4, 0))
+'End If
+
+shT.Range("R" & lr + 1).Value = Me.txt_PhotosURL.Value
+
+
+''''''''''''''''' Clear box '''''''''''''''''
+
+Call clr_Transaction
+Me.cmb_Type.Value = "Type"
+
+Call shw_Transaction
+Call shw_Stock
+Call shw_Number
+'''''' Refresh data
+'Call Available_Stocks
+'Call Show_Sale_Purchase_Data
+'Call Show_Numbers
+
+'''''''''''''''''
+
+MsgBox "Transaction Data have been Added Successfully", vbInformation
+
+End Sub
+
+
+
+
+Private Sub cmb_Type_Change()
+
+Dim shIM As Worksheet
+Set shIM = ThisWorkbook.Sheets("InventoryManager")
+
+If Me.txt_Barcode.Value = "" Or Me.cmb_Type.Value = "Type" Then Me.txt_Rate.Value = ""
+
+If Me.txt_Barcode.Value <> "" Then
+
+    If Me.cmb_Type.Value = "Sale" Or Me.cmb_Type.Value = "Refund" Then
+        Me.txt_Rate.Value = Format(Application.WorksheetFunction.VLookup(Me.txt_Barcode.Value, shIM.Range("D:G"), 3, 0), "0.00")
+    End If
+        If Me.cmb_Type.Value = "Order" Or Me.cmb_Type.Value = "Receive" Then
+        Me.txt_Rate.Value = Format(Application.WorksheetFunction.VLookup(Me.txt_Barcode.Value, shIM.Range("D:G"), 4, 0), "0.00")
+    End If
+    If Me.cmb_Type.Value = "Adjust" Or Me.cmb_Type.Value = "Expire" Then
+        Me.txt_Rate.Value = Format(Application.WorksheetFunction.VLookup(Me.txt_Barcode.Value, shIM.Range("D:G"), 4, 0), "0.00")
+    End If
+
+    Me.txt_Quantity.Value = 1
+    Me.txt_Discount.Value = 0
+
+    If Me.txt_Quantity.Value <> "" And Me.txt_Discount.Value <> "" And Me.txt_Rate.Value <> "" Then
+'        If tgl_cut.Value = True Then
+'            Me.txt_Total.Value = Format(Round(((Me.txt_Quantity.Value * Me.txt_Rate.Value) - Me.txt_Discount.Value), 2), "0.00")
+'        Else
+            Me.txt_Total.Value = Format(Round(((Me.txt_Quantity.Value * Me.txt_Rate.Value) * (100 - Me.txt_Discount.Value) / 100), 2), "0.00")
+'        End If
+    End If
+    
+End If
+
+End Sub
+
+
+
+
+Private Sub txt_Barcode_Change()
+
+Dim shIM As Worksheet
+Set shIM = ThisWorkbook.Sheets("InventoryManager")
+
+If Me.txt_Barcode.Value = "" Or Me.cmb_Type.Value = "Type" Then Me.txt_Rate.Value = ""
+
+If Me.txt_Barcode.Value <> "" Then
+
+    Me.txt_Product.Value = Application.WorksheetFunction.Index(shIM.Range("C:C"), Application.WorksheetFunction.Match(Me.txt_Barcode.Value, shIM.Range("D:D"), 0))
+    Me.txt_ItemCode.Value = Application.WorksheetFunction.Index(shIM.Range("E:E"), Application.WorksheetFunction.Match(Me.txt_Barcode.Value, shIM.Range("D:D"), 0))
+    
+    If Me.cmb_Type.Value = "Sale" Or Me.cmb_Type.Value = "Refund" Then
+        Me.txt_Rate.Value = Format(Application.WorksheetFunction.VLookup(Me.txt_Barcode.Value, shIM.Range("D:G"), 3, 0), "0.00")
+    End If
+        If Me.cmb_Type.Value = "Order" Or Me.cmb_Type.Value = "Receive" Then
+        Me.txt_Rate.Value = Format(Application.WorksheetFunction.VLookup(Me.txt_Barcode.Value, shIM.Range("D:G"), 4, 0), "0.00")
+    End If
+    If Me.cmb_Type.Value = "Adjust" Or Me.cmb_Type.Value = "Expire" Then
+        Me.txt_Rate.Value = Format(Application.WorksheetFunction.VLookup(Me.txt_Barcode.Value, shIM.Range("D:G"), 4, 0), "0.00")
+    End If
+
+    Me.txt_Quantity.Value = 1
+    Me.txt_Discount.Value = 0
+
+    If Me.txt_Quantity.Value <> "" And Me.txt_Discount.Value <> "" And Me.txt_Rate.Value <> "" Then
+'        If tgl_cut.Value = True Then
+'            Me.txt_Total.Value = Format(Round(((Me.txt_Quantity.Value * Me.txt_Rate.Value) - Me.txt_Discount.Value), 2), "0.00")
+'        Else
+            Me.txt_Total.Value = Format(Round(((Me.txt_Quantity.Value * Me.txt_Rate.Value) * (100 - Me.txt_Discount.Value) / 100), 2), "0.00")
+'        End If
+    End If
+    
+End If
+
+End Sub
+
+
+
+
+Private Sub txt_Quantity_Change()
+If Me.txt_Barcode.Value <> "" And Me.cmb_Type.Value <> "Type" Then
+    If Me.txt_Quantity.Value <> "" And Me.txt_Discount.Value <> "" And Me.txt_Rate.Value <> "" Then
+        
+        If IsNumeric(Me.txt_Quantity.Value) = False Then
+            MsgBox "Please Enter a Number for the Correct Quantity", vbCritical
+            Exit Sub
+        Else
+'            If tgl_cut.Value = True Then
+'                Me.txt_Total.Value = Format(Round(((Me.txt_Quantity.Value * Me.txt_Rate.Value) - Me.txt_Discount.Value), 2), "0.00")
+'            Else
+'                If Me.txt_Discount.Value < 0 Or Me.txt_Discount.Value > 100 Then
+'                    MsgBox "Please Enter a value Between 0 & 100 for Discount(Off) Without %-Percent Symbol", vbCritical
+'                    Exit Sub
+'                Else
+                    Me.txt_Total.Value = Format(Round(((Me.txt_Quantity.Value * Me.txt_Rate.Value) * (100 - Me.txt_Discount.Value) / 100), 2), "0.00")
+'                End If
+'            End If
+        End If
+    
+    End If
+End If
+End Sub
+
+
+
+
+Private Sub txt_Discount_Change()
+If Me.txt_Barcode.Value <> "" And Me.cmb_Type.Value <> "Type" Then
+    If Me.txt_Quantity.Value <> "" And Me.txt_Discount.Value <> "" And Me.txt_Rate.Value <> "" Then
+        
+        If IsNumeric(Me.txt_Discount.Value) = False Then
+            MsgBox "Please Enter a Positive Number for Discount(Off) Without using Any Symbol", vbCritical
+            Exit Sub
+        Else
+'            If tgl_cut.Value = True Then
+'                Me.txt_Total.Value = Format(Round(((Me.txt_Quantity.Value * Me.txt_Rate.Value) - Me.txt_Discount.Value), 2), "0.00")
+'            Else
+'                If Me.txt_Discount.Value < 0 Or Me.txt_Discount.Value > 100 Then
+'                    MsgBox "Please Enter a value Between 0 & 100 for Discount(Off) Without %-Percent Symbol", vbCritical
+'                    Exit Sub
+'                Else
+                    Me.txt_Total.Value = Format(Round(((Me.txt_Quantity.Value * Me.txt_Rate.Value) * (100 - Me.txt_Discount.Value) / 100), 2), "0.00")
+'                End If
+'            End If
+        End If
+    
+    End If
+End If
+End Sub
+
+
+
+Private Sub UserForm_Initialize()
+    
+'    Me.txt_Date.Value = Format(Date, "DD-MMM-YYYY")
+'    Me.txt_Time.Value = Format(Time, "hh:mm:ss Am/Pm")
+
+'    Me.txt_Quantity.Value = 1
+'    Me.txt_Discount.Value = 0
+    
+    Me.txt_Date.Value = "Today's Date"
+    Me.txt_Time.Value = "Current Time"
+    
+    Me.txt_From.Value = Format(Date, "DD-MMM-YYYY")
+    Me.txt_To.Value = Format(Date, "DD-MMM-YYYY")
+    
+    With Me.cmb_Type
+        .Clear
+        .AddItem "Type"
+        .AddItem "Sale"
+        .AddItem "Order"
+        .AddItem "Receive"
+        .AddItem "Refund"
+        .AddItem "Adjust"
+        .AddItem "Expire"
+    End With
+    
+'    Call put_Products
+    Call put_Barcodes
+    Call shw_Transaction
+    Call shw_Stock
+    Call shw_Number
+    
+End Sub
+
+
+
+Sub fnd_Item(cmb As MSForms.TextBox, Col_Number As Integer)
+
+    Dim shIM As Worksheet
+    Set shIM = ThisWorkbook.Sheets("InventoryManager")
+
+    If cmb.Value = "" Then
+        MsgBox "Please Enter a valid Value in the Box beside the Search icon", vbCritical
+        Exit Sub
+    End If
+
+
+    Dim search_range As Range
+    Set search_range = shIM.Range(shIM.Cells(2, Col_Number), shIM.Cells(Application.Rows.Count, Col_Number))
+
+    If Application.WorksheetFunction.CountIf(search_range, "*" & cmb.Value & "*") = 0 Then
+        MsgBox "No Match was found", vbCritical
+        Exit Sub
+    End If
+
+
+    Dim iRow As Long
+
+    If Application.WorksheetFunction.CountIf(search_range, cmb.Value) > 0 Then
+        iRow = Application.WorksheetFunction.Match(cmb.Value, search_range, 0) + 1
+    Else
+        iRow = Application.WorksheetFunction.Match("*" & cmb.Value & "*", search_range, 0) + 1
+    End If
+
+
+''''' show value in boxes
+
+'    Me.txt_DblClc.Value = "yes"
+
+    Me.txt_Product.Value = shIM.Range("C" & iRow).Value
+    Me.txt_Barcode.Value = shIM.Range("D" & iRow).Value
+    Me.txt_ItemCode.Value = shIM.Range("E" & iRow).Value
+    Me.txt_PhotosURL.Value = shIM.Range("O" & iRow).Value
+    
+    If Dir(Me.txt_PhotosURL.Value) <> "" Then
+        Me.img_PhotosTransaction.Picture = LoadPicture(Me.txt_PhotosURL.Value)
+    End If
+
+'''''' Change font color
+
+'    Me.txt_product.ForeColor = vbBlack
+'    Me.txt_Barcode.ForeColor = vbBlack
+
+
+End Sub
+
+
+Private Sub img_SearchProduct_Click()
+    Call fnd_Item(Me.txt_Product, 3)
+End Sub
+
+
+
+
+'Private Sub img_SearchBar_Click()
+'    Call fnd_Item(Me.txt_Barcode, 4)
+'End Sub
+
+
+
+
+Private Sub img_SearchItem_Click()
+    'Call fnd_Item(Me.txt_ItemCode, 5)
+    MsgBox "Not All Item Code is Up-to-Date as of Now. Please Consider searching by Barcode or Product's Name", vbInformation
+End Sub
+
+
+
+
+Private Sub txt_Product_Enter()
+Call clr_Transaction
+'Me.cmb_Type.Value = "Type"
+End Sub
+
+
+
+'
+'Sub put_Products()
+'Dim shIM As Worksheet
+'Set shIM = ThisWorkbook.Sheets("InventoryManager")
+'
+'Dim i As Integer
+'
+'Me.cmb_Product.Clear
+'Me.cmb_Product.AddItem ""
+'
+'For i = 2 To Application.WorksheetFunction.CountA(shIM.Range("C:C"))
+'    Me.cmb_Product.AddItem shIM.Range("C" & i)
+'Next i
+'End Sub
+
+
+
+
+Sub put_Barcodes()
+Dim shIM As Worksheet
+Set shIM = ThisWorkbook.Sheets("InventoryManager")
+
+Dim i As Integer
+
+Me.txt_Barcode.Clear
+Me.txt_Barcode.AddItem ""
+
+For i = 2 To Application.WorksheetFunction.CountA(shIM.Range("C:C"))
+    Me.txt_Barcode.AddItem shIM.Range("D" & i)
+Next i
+End Sub
+
+
+
+
+Sub shw_Transaction()
+
+Application.ScreenUpdating = False
+
+Dim shT As Worksheet
+Set shT = ThisWorkbook.Sheets("Transaction")
+
+Dim shTF As Worksheet
+Set shTF = ThisWorkbook.Sheets("TransactionFilter")
+
+
+shT.AutoFilterMode = False
+shTF.AutoFilterMode = False
+shTF.UsedRange.ClearContents
+
+''''' Copy data from Transaction worksheet to TransactionFilter worksheet
+
+shT.Range("N:N").NumberFormat = "DD-MMM-YYYY"
+'shT.Range("E:F").NumberFormat = "0.00"
+'shT.Range("D:D").NumberFormat = "0"
+
+shT.UsedRange.AutoFilter 14, ">=" & Me.txt_From.Value, xlAnd, "<=" & Me.txt_To.Value
+
+If Me.opt_Sale.Value = True Then
+    shT.UsedRange.AutoFilter 2, "Sale"
+End If
+
+If Me.opt_Order.Value = True Then
+    shT.UsedRange.AutoFilter 2, "Order"
+End If
+
+If Me.opt_Receive.Value = True Then
+    shT.UsedRange.AutoFilter 2, "Receive"
+End If
+
+If Me.opt_Refund.Value = True Then
+    shT.UsedRange.AutoFilter 2, "Refund"
+End If
+
+If Me.opt_Adjust.Value = True Then
+    shT.UsedRange.AutoFilter 2, "Adjust"
+End If
+
+'If Me.OptionButton3.Value = True Then   ''' Filter Sale
+'    shT.UsedRange.AutoFilter 3, "Sale"
+'End If
+
+shT.UsedRange.Copy
+shTF.Range("A1").PasteSpecial xlPasteValuesAndNumberFormats
+
+shT.AutoFilterMode = False
+
+
+'''''''''' Display Filtered data in the list box
+
+Dim lr As Long
+lr = Application.WorksheetFunction.CountA(shTF.Range("A:A"))
+
+If lr = 1 Then lr = 2
+
+With Me.lst_Activity
+    .ColumnCount = 18
+    .ColumnHeads = True
+    .ColumnWidths = "0,30,150,60,45,40,40,40,0,40,40,0,120,45,60,0,0,0"
+    .RowSource = "TransactionFilter!A2:R" & lr
+End With
+
+End Sub
+
+
+
+Private Sub opt_All_Click()
+Call shw_Transaction
+End Sub
+Private Sub opt_Sale_Click()
+Call shw_Transaction
+End Sub
+Private Sub opt_Order_Click()
+Call shw_Transaction
+End Sub
+Private Sub opt_Receive_Click()
+Call shw_Transaction
+End Sub
+Private Sub opt_Refund_Click()
+Call shw_Transaction
+End Sub
+Private Sub opt_Adjust_Click()
+Call shw_Transaction
+End Sub
+
+
+
+Private Sub lst_Activity_DblClick(ByVal Cancel As MSForms.ReturnBoolean)
+'Me.txt_DblClc.Value = "yes"
+
+Me.txt_Serial.Value = Me.lst_Activity.List(Me.lst_Activity.ListIndex, 0)
+Me.cmb_Type.Value = Me.lst_Activity.List(Me.lst_Activity.ListIndex, 1)
+Me.txt_Product.Value = Me.lst_Activity.List(Me.lst_Activity.ListIndex, 2)
+Me.txt_Barcode.Value = Me.lst_Activity.List(Me.lst_Activity.ListIndex, 3)
+Me.txt_ItemCode.Value = Me.lst_Activity.List(Me.lst_Activity.ListIndex, 4)
+Me.txt_Quantity.Value = Me.lst_Activity.List(Me.lst_Activity.ListIndex, 5)
+
+Me.txt_Rate.Value = Me.lst_Activity.List(Me.lst_Activity.ListIndex, 6)
+Me.txt_Discount.Value = (Me.lst_Activity.List(Me.lst_Activity.ListIndex, 7)) * 100
+'Me.txt_Reduction.Value = Me.lst_Activity.List(Me.lst_Activity.ListIndex, 8)
+Me.txt_Total.Value = Format(Round((Me.lst_Activity.List(Me.lst_Activity.ListIndex, 9)), 2), "0.00")
+Me.txt_Paid.Value = Format(Round((Me.lst_Activity.List(Me.lst_Activity.ListIndex, 10)), 2), "0.00")
+'Me.txt_Difference.Value = Me.lst_Activity.List(Me.lst_Activity.ListIndex, 11)
+
+Me.txt_Comment.Value = Me.lst_Activity.List(Me.lst_Activity.ListIndex, 12)
+Me.txt_Date.Value = Format(Me.lst_Activity.List(Me.lst_Activity.ListIndex, 13), "DD-MMM-YYYY")
+Me.txt_Time.Value = Format(Me.lst_Activity.List(Me.lst_Activity.ListIndex, 14), "hh:mm:ss Am/Pm")
+'Me.txt_Yeild.Value = Me.lst_Activity.List(Me.lst_Activity.ListIndex, 15)
+'Me.txt_Profit.Value = Me.lst_Activity.List(Me.lst_Activity.ListIndex, 16)
+
+
+Me.txt_PhotosURL.Value = Me.lst_Activity.List(Me.lst_Activity.ListIndex, 17)
+If Dir(Me.txt_PhotosURL.Value) <> "" Then
+    Me.img_PhotosTransaction.Picture = LoadPicture(Me.txt_PhotosURL.Value)
+End If
+
+MsgBox "Please Update or Delete this Record Now, Otherwise Clear to continue", vbInformation
+
+End Sub
+
+
+Private Sub btn_RefreshDate_Click()
+    Call shw_Transaction
+    Call shw_Number
+End Sub
+
+
+Sub shw_Stock()
+
+Application.ScreenUpdating = False
+
+Dim shIM As Worksheet
+Set shIM = ThisWorkbook.Sheets("InventoryManager")
+
+Dim shP As Worksheet
+Set shP = ThisWorkbook.Sheets("Product")
+
+shP.Cells.ClearContents
+
+'''''' Copy the Product
+
+shIM.AutoFilterMode = False
+
+shIM.Range("A:A").Copy
+shP.Range("A1").PasteSpecial xlPasteValuesAndNumberFormats
+shIM.Range("C:C").Copy
+shP.Range("B1").PasteSpecial xlPasteValuesAndNumberFormats
+shIM.Range("D:D").Copy
+shP.Range("C1").PasteSpecial xlPasteValuesAndNumberFormats
+
+shIM.Range("F:F").Copy
+shP.Range("D1").PasteSpecial xlPasteValuesAndNumberFormats
+shIM.Range("H:H").Copy
+shP.Range("E1").PasteSpecial xlPasteValuesAndNumberFormats
+shIM.Range("I:I").Copy
+shP.Range("G1").PasteSpecial xlPasteValuesAndNumberFormats
+
+shIM.Range("B:B").Copy
+shP.Range("H1").PasteSpecial xlPasteValuesAndNumberFormats
+shIM.Range("L:L").Copy
+shP.Range("I1").PasteSpecial xlPasteValuesAndNumberFormats
+shIM.Range("M:M").Copy
+shP.Range("J1").PasteSpecial xlPasteValuesAndNumberFormats
+
+'shP.UsedRange.Copy
+'shPD.Range("A1").PasteSpecial xlPasteValuesAndNumberFormats
+
+'''''' Add the headers
+'shP.Range("B1").Value = "Product Name"
+'shP.Range("C1").Value = "Barcode"
+'shP.Range("D1").Value = "Price"
+'shP.Range("E1").Value = "Location"
+shP.Range("F1").Value = "Stock"
+'shP.Range("G1").Value = "Expiry Date"
+'shP.Range("H1").Value = "Company / Brand"
+'shP.Range("I1").Value = "Description"
+'shP.Range("J1").Value = "Notes"
+
+Dim lr As Integer
+lr = Application.WorksheetFunction.CountA(shP.Range("A:A"))
+
+'''' Put the formula
+If lr > 1 Then
+'    shP.Range("F2").Value = "=SUMIFS(Transaction!F:F,Transaction!D:D,A3,Transaction!C:C,""Receive"")-SUMIFS(Transaction!F:F,Transaction!D:D,A3,Transaction!C:C,""Sale"")+SUMIFS(Transaction!F:F,Transaction!D:D,A3,Transaction!C:C,""Refund"")-SUMIFS(Transaction!F:F,Transaction!D:D,A3,Transaction!C:C,""Adjust"")+SUMIFS(Transaction!F:F,Transaction!D:D,A3,Transaction!C:C,""Order"")"
+'
+'    shP.Range("C2").Value = "=SUMIFS(Transaction!D:D,Transaction!B:B,A2,Transaction!C:C,$C$1)"
+'    shP.Range("D2").Value = "=B2-C2"
+'    shP.Range("E2").Value = "=VLOOKUP(A2,InventoryManager!B:C,2,0)*D2"
+    
+'    shP.Range("A2").Value = shIM.Range("A2").Value
+'    shP.Range("B2").Value = shIM.Range("C2").Value
+'    shP.Range("C2").Value = shIM.Range("D2").Value
+'
+'    shP.Range("D2").Value = shIM.Range("F2").Value
+'    shP.Range("E2").Value = shIM.Range("H2").Value
+    shP.Range("F2").Value = "=SUMIFS(Transaction!F:F,Transaction!D:D,C2,Transaction!B:B,""Receive"")-SUMIFS(Transaction!F:F,Transaction!D:D,C2,Transaction!B:B,""Sale"")+SUMIFS(Transaction!F:F,Transaction!D:D,C2,Transaction!B:B,""Refund"")-SUMIFS(Transaction!F:F,Transaction!D:D,C2,Transaction!B:B,""Adjust"")+SUMIFS(Transaction!F:F,Transaction!D:D,C2,Transaction!B:B,""Order"")"
+'    shP.Range("G2").Value = shIM.Range("I2").Value
+'
+'    shP.Range("H2").Value = shIM.Range("B2").Value
+'    shP.Range("I2").Value = shIM.Range("L2").Value
+'    shP.Range("J2").Value = shIM.Range("M2").Value
+    
+'    Me.txt_Product.Value = sh.Range("C" & iRow).Value
+'    Me.txt_Barcode.Value = sh.Range("D" & iRow).Value
+'    Me.txt_ItemCode.Value = sh.Range("E" & iRow).Value
+'    Me.txt_PhotosURL.Value = sh.Range("O" & iRow).Value
+    
+    If lr > 2 Then
+        shP.Range("F2:F" & lr).FillDown
+    End If
+    
+    shP.Calculate
+    shP.UsedRange.Copy
+    shP.UsedRange.PasteSpecial xlPasteValues
+End If
+
+''''' Sort data
+'shP.UsedRange.Sort key1:=shP.Range("F1"), order1:=xlAscending, Header:=xlYes
+   
+''''''' Display data in List box
+
+
+Dim shPD As Worksheet
+Set shPD = ThisWorkbook.Sheets("ProductDisplay")
+ 
+shPD.UsedRange.ClearContents
+ 
+If Me.txt_Search.Value <> "" Then
+    shP.UsedRange.AutoFilter 2, "*" & Me.txt_Search.Value & "*"
+End If
+
+shP.UsedRange.Copy
+shPD.Range("A1").PasteSpecial xlPasteValuesAndNumberFormats
+shP.AutoFilterMode = False
+
+lr = Application.WorksheetFunction.CountA(shPD.Range("A:A"))
+
+
+If lr = 1 Then lr = 2
+
+With Me.lst_Stock
+   .ColumnCount = 10
+   .ColumnHeads = True
+   .ColumnWidths = "0,105,55,35,35,35,0,55,0,0"
+   .RowSource = "ProductDisplay!A2:J" & lr
+End With
+
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+'
+'Dim invd_sh As Worksheet
+'Set shPD = ThisWorkbook.Sheets("ProductDisplay")
+'
+'invd_sh.UsedRange.ClearContents
+'
+'If Me.txt_Search.Value <> "" Then
+'    Inv_sh.UsedRange.AutoFilter 1, "*" & Me.txt_Search.Value & "*"
+'End If
+'
+'Inv_sh.UsedRange.Copy
+'invd_sh.Range("A1").PasteSpecial xlPasteValuesAndNumberFormats
+'Inv_sh.AutoFilterMode = False
+'
+'lr = Application.WorksheetFunction.CountA(invd_sh.Range("A:A"))
+'
+'
+'If lr = 1 Then lr = 2
+'
+'With Me.ListBox1
+'   .ColumnCount = 5
+'   .ColumnHeads = True
+'   .ColumnWidths = "90,0,0,70,0"
+'   .RowSource = "ProductDisplay!A2:E" & lr
+'End With
+
+
+End Sub
+
+
+Sub shw_Number()
+
+Application.ScreenUpdating = False
+
+Dim shR As Worksheet
+Set shR = ThisWorkbook.Sheets("Report")
+
+shR.Range("C3").Value = Me.txt_From.Value
+shR.Range("D3").Value = Me.txt_To.Value
+shR.Calculate
+
+Me.lbl_SaleValue.Caption = "$ " & Format(shR.Range("C6").Value, "0.00")
+Me.lbl_SaleItem.Caption = "(" & shR.Range("D6").Value & " items)"
+Me.lbl_OrderValue.Caption = "$ " & Format(shR.Range("C7").Value, "0.00")
+Me.lbl_OrderItem.Caption = "(" & shR.Range("D7").Value & " items)"
+
+Me.lbl_RefundValue.Caption = "$ " & Format(shR.Range("C9").Value, "0.00")
+Me.lbl_RefundItem.Caption = "(" & shR.Range("D9").Value & " items)"
+Me.lbl_AdjustValue.Caption = "$ " & Format(shR.Range("C10").Value, "0.00")
+Me.lbl_AdjustItem.Caption = "(" & shR.Range("D10").Value & " items)"
+
+Me.lbl_InventoryValue.Caption = "$ " & Format(shR.Range("C12").Value, "0.00")
+Me.lbl_InventoryItem.Caption = "(" & shR.Range("D12").Value & " items)"
+
+Me.lbl_ProfitValue.Caption = "$ " & Format(shR.Range("C13").Value, "0.00")
+
+End Sub
